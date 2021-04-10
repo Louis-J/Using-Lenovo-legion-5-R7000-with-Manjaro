@@ -1,0 +1,14 @@
+ [Desktop Entry]
+ Name=Open in 7zFM
+ Name[zh]=在7z中打开
+ Type=Service
+ ServiceTypes=KonqPopupMenu/Plugin
+ MimeType=inode/directory;application/octet-stream;
+ X-KDE-Priority=TopLevel
+ Actions=openIn7z
+ 
+ [Desktop Action openIn7z]
+ Icon=CFDC_7zFM.0
+ Exec=env WINEPREFIX="/home/louisj/.wine" wine "/home/louisj/.wine/dosdevices/c:/Program Files/7-Zip/7zFM.exe" "Z:%u"
+ Name=Open in 7zFM
+ Name[zh]=在7z中打开

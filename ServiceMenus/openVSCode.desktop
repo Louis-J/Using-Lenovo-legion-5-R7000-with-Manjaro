@@ -1,0 +1,13 @@
+ [Desktop Entry]
+ Name = Open in VS Code
+ Type=Service
+ ServiceTypes=KonqPopupMenu/Plugin
+ MimeType=inode/directory
+ X-KDE-Priority=TopLevel
+ Actions=openInVSCode
+ 
+ [Desktop Action openInVSCode]
+ Name=Open in VS Code
+ Icon=com.visualstudio.code
+ Exec=code %u
+ Name[zh]=在VS Code中打开

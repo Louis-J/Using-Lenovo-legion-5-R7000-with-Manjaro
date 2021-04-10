@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=KonqPopupMenu/Plugin,inode/directory,inode/directory-locked
+Actions=openYakuake;
+Icon=yakuake
+Encoding=UTF-8
+
+[Desktop Action openYakuake]
+Name=Open Yakuake here
+Icon=yakuake
+Exec=/home/louisj/.local/share/kservices5/ServiceMenus/yakuakehere.sh %f
+# Exec=/home/louisj/.local/share/kservices5/ServiceMenus/openWithYakuake.sh %f
+Name[zh]=在Yakuake中打开
