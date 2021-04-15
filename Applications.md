@@ -155,3 +155,46 @@ wine安装好后使用q4wine和winetricks进行配置， 安装里面提供的�
 + 播放器：vlc， 网易云
 + 小游戏：knetwalk， kpatience
 
+## Clash自启动
+
+建立系统服务，自动启动clash：
+
+`kate /etc/systemd/system/clash.service`
+
+内容编辑如下：
+
+```
+[Unit]
+#服务描述，写有意义的内容，便于识别
+Description=Clash service
+Documentation=
+#放在该服务启动后启动，如果是Before，则是之前
+# After=network-online.target
+After=network.target
+#Wants=依赖起他unit,弱依赖，如果是Requires，强依赖
+# Wants=network-online.target
+
+[Service]
+Type=simple
+#服务执行的路径
+User=louisj
+ExecStart=/usr/bin/clash
+#指明停止unit要运行的命令或脚本
+# ExecStop=/bin/kill -s QUIT $MAINPID
+#当意外中止时是否重启
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+```
+
+更新并启动：
+
+```
+sudo systemctl daemon-reload
+sudo systemctl enable clash
+sudo systemctl start clash
+sudo systemctl status clash
+```
+
