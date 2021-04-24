@@ -1,10 +1,11 @@
  [Desktop Entry]
- Name = Open in VS Code
+ Name=Open in VS Code
  Type=Service
  ServiceTypes=KonqPopupMenu/Plugin
- MimeType=inode/directory
+ MimeType=inode/directory;application/octet-stream;
  X-KDE-Priority=TopLevel
  Actions=openInVSCode
+ Name[zh]=在VS Code中打开
  
  [Desktop Action openInVSCode]
  Name=Open in VS Code

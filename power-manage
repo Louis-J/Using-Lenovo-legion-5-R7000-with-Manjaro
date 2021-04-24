@@ -1,0 +1,96 @@
+#!/bin/bash
+
+if ! lsmod | grep acpi_call &> /dev/null ; then
+  modprobe acpi_call  # loading acpi_call kernel module if not loaded
+fi
+
+function get_powerplan {
+  echo '\_SB.PCI0.LPC0.EC0.SPMO' | sudo cat >/proc/acpi/call
+  pwpl=$(cat /proc/acpi/call | cut -d '' -f1)
+  
+  if [[ $pwpl == '0x0' ]] ;
+    then echo 'Intelligent Cooling'
+  elif [[ $pwpl == '0x1' ]] ;
+    then echo 'Extreme Performance'
+  elif [[ $pwpl == '0x2' ]] ;
+    then echo 'Battery Saving'
+  else
+    echo 'Bad: Unknown'
+    echo 'Bad: $pwpl = '$pwpl
+  fi
+  
+  echo '\_SB.PCI0.LPC0.EC0.FCMO' | sudo cat >/proc/acpi/call
+  fcmo=$(cat /proc/acpi/call | cut -d '' -f1)
+  echo 'Bad: $fcmo = '$fcmo
+}
+
+function set_powerplan () {
+  case $1 in 
+    1)
+      echo '\_SB.PCI0.LPC0.EC0.VPC0.DYTC 0x000FB001' | sudo cat >/proc/acpi/call ;; # intelligent cooling
+    2)
+      echo '\_SB.PCI0.LPC0.EC0.VPC0.DYTC 0x0012B001' | sudo cat >/proc/acpi/call ;; # extreme performance
+    3)
+      echo '\_SB.PCI0.LPC0.EC0.VPC0.DYTC 0x0013B001' | sudo cat >/proc/acpi/call ;; # battery saving
+  esac
+}
+
+function get_battery_mode () {
+  echo '\_SB.PCI0.LPC0.EC0.BTSM' | cat >/proc/acpi/call
+  cons=$(cat /proc/acpi/call | cut -d '' -f1)
+
+  echo '\_SB.PCI0.LPC0.EC0.QCHO' | cat >/proc/acpi/call
+  rpdc=$(cat /proc/acpi/call | cut -d '' -f1)
+
+  if [[ $cons == '0x0' && $rpdc == '0x0' ]] ; 
+    then echo 'Default'
+  elif [[ $cons == '0x0' && $rpdc == '0x1' ]] ; 
+    then echo 'Rapid Charge'
+  elif [[ $cons == '0x1' && $rpdc == '0x0' ]] ; 
+    then echo 'Battery Conservation'
+  else
+    echo 'Bad: Rapid Charge with Battery Saving'
+    echo 'Bad: $Conservation = '$cons', $Charge = '$rpdc
+  fi
+}
+
+function set_battery_mode () {
+  case $1 in 
+    1)
+      echo '\_SB.PCI0.LPC0.EC0.VPC0.SBMC 0x05' | cat >/proc/acpi/call # turn off battery conservation
+      echo '\_SB.PCI0.LPC0.EC0.VPC0.SBMC 0x08' | cat >/proc/acpi/call ;; # turn off rapid charge
+    2)
+      echo '\_SB.PCI0.LPC0.EC0.VPC0.SBMC 0x08' | cat >/proc/acpi/call # turn off rapid charge
+      echo '\_SB.PCI0.LPC0.EC0.VPC0.SBMC 0x03' | cat >/proc/acpi/call ;; # turn on battery conservation
+    3)
+      echo '\_SB.PCI0.LPC0.EC0.VPC0.SBMC 0x05' | cat >/proc/acpi/call # turn off battery conservation
+      echo '\_SB.PCI0.LPC0.EC0.VPC0.SBMC 0x07' | cat >/proc/acpi/call ;; # turn on rapid charge
+  esac   
+}
+
+function print_help {
+  echo 'List of available commands:
+  getp - get current power scheme
+  setp - set new power scheme
+    1 - intelligent cooling
+    2 - extreme performance
+    3 - battery saving
+  getb - get current battery mode
+  setb - set new battery mode
+    1 - default
+    2 - battery conservation
+    3 - rapid charge'
+}
+
+case $1 in 
+  getp)
+    get_powerplan ;;
+  setp)
+    set_powerplan $2 ;;
+  getb)
+    get_battery_mode ;;
+  setb)
+    set_battery_mode $2 ;;
+  *)
+    print_help ;;
+esac

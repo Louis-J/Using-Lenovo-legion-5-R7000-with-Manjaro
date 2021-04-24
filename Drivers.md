@@ -92,7 +92,7 @@ options nouveau modeset=0
 + 系统有多个显卡， 在`/sys/class/backlight/`对应生成了多个文件夹，启动后只保留了`amdgpu_bl1`这个文件夹， 因此开机时设置失败，关机时对应的`gpu-monitor`亮度会读取失败
 + `/sys/class/backlight/amdgpu_bl1/actual_brightness`的值固定不变，为90%亮度，开机后无法读取和写入， 开关机时系统读写的是这个文件；实际调整亮度用的是`/sys/class/backlight/amdgpu_bl1/brightness`， 系统未操作
 
-暂时的解决方法是：
+~~暂时的解决方法是：~~
 
 + 屏蔽对应服务
 
@@ -110,13 +110,30 @@ options nouveau modeset=0
     GRUB_CMDLINE_LINUX_DEFAULT="quiet acpi_backlight=amdgpu_bl1 ..."
     sudo grub-mkconfig -o /boot/grub/grub.cfg
     ```
+    
 + 重启
 
-现状：开机后亮度为最大值，无警告
++ 现状：开机后亮度为最大值，无警告
 
-有另外两个亮度服务，似乎不起作用。
+    有另外两个亮度服务，似乎不起作用。
 
-最好是自己重写一个服务， 开关机和睡眠唤醒时读写`/sys/class/backlight/amdgpu_bl1/brightness的`值。
+    最好是自己重写一个服务， 开关机和睡眠唤醒时读写`/sys/class/backlight/amdgpu_bl1/brightness的`值。
+
+解决办法：
+
++ 更新系统后，现在读写的是`brightness`值，且无`acpi_video1`和`amdgpu_bl1`错误问题
+   
++ 通过加入条件让服务滞后运行即可
+   
++ ```
+   kate /usr/lib/systemd/system/systemd-backlight@.service
+   
+   [Unit]
+   ...
+   After=multi-user.target
+   Before=shutdown.target
+   ...
+   ```
 
 
 
@@ -144,7 +161,7 @@ r7000的触摸板驱动已经集成到5.11以上的内核了， `manjaro`可直�
 
 电池模式下， 默认的设置有缺陷， 一旦负载过高仍然会自动开启`cpu`升频， 导致电池模式下耗电较快。 需配合工具进行设置。
 
-`ryzenadj`工具可设置功耗等， 功能强大， 但此工具并不非常好用， 可留待以后升级后使用。
+`ryzenadj`工具可设置功耗等， 功能强大， 但此工具现并不非常好用， 可留待以后升级后使用。
 
 默认的`tlp`即可进行设置：`kate /etc/tlp.conf`
 
@@ -195,6 +212,7 @@ START_CHARGE_THRESH_BAT0=65
 STOP_CHARGE_THRESH_BAT0=80
 ```
 
+现有`tlpui`工具可以可视化设置，更加方便和清晰
 
 ## 蓝牙耳机及声卡
 
